@@ -27,6 +27,8 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -204,8 +206,20 @@ public class CreativeManager extends K0busCore {
             Field[] fieldlist = Tag.class.getDeclaredFields();
             for (Field fld : fieldlist) {
                 try {
-                    Set<Material> set = ((Tag<Material>) fld.get(null)).getValues();
-                    tagMap.put(fld.getName(), set);
+                    if (Tag.class.isAssignableFrom(fld.getType())) {
+                        Type genericType = fld.getGenericType();
+                        if (genericType instanceof ParameterizedType) {
+                            ParameterizedType aType = (ParameterizedType) genericType;
+                            Type[] fieldArgTypes = aType.getActualTypeArguments();
+                            if (fieldArgTypes.length > 0 && fieldArgTypes[0] == Material.class) {
+                                @SuppressWarnings("unchecked")
+                                Tag<Material> tag = (Tag<Material>) fld.get(null);
+                                if (tag != null) {
+                                    tagMap.put(fld.getName(), tag.getValues());
+                                }
+                            }
+                        }
+                    }
                 }catch (Exception ignored)
                 {}
             }
