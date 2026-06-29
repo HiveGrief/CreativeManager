@@ -7,3 +7,8 @@ CreativeManager.iml
 .classpath
 .project
 /dependency-reduced-pom.xml
+.flattened-pom.xml
+checkstyle-report.html
+checkstyle-report.md
+checkstyle_errors.txt
+

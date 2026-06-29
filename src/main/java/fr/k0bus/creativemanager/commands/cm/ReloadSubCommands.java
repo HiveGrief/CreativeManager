@@ -7,13 +7,14 @@ import org.bukkit.command.CommandSender;
 
 public class ReloadSubCommands extends Commands {
 
-    public ReloadSubCommands(CreativeManager instance) {
-        super(instance, "creativemanager.admin", false);
-    }
+  public ReloadSubCommands(CreativeManager instance) {
+    super(instance, "creativemanager.admin", false);
+  }
 
-    @Override
-    protected void run(CommandSender sender, String[] args) {
-        plugin.loadConfigManager();
-        sender.sendMessage(CreativeManager.TAG + StringUtils.translateColor("&5Configuration reloaded !"));
-    }
+  @Override
+  protected void run(CommandSender sender, String[] args) {
+    plugin.loadConfigManager();
+    sender.sendMessage(
+        CreativeManager.TAG + StringUtils.translateColor("&5Configuration reloaded !"));
+  }
 }

@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'mvn clean install -Dbuild.number=${BUILD_NUMBER}'
+                sh 'mvn clean install -Drevision=${BUILD_NUMBER}'
             }
         }
         stage('Archive Artifacts') {

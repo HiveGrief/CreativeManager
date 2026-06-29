@@ -1,58 +1,55 @@
 package fr.k0bus.creativemanager.log;
 
+import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 
-import java.util.UUID;
-
 public class BlockLog {
 
-    private Location location;
-    private final UUID uuid;
-    private final OfflinePlayer player;
-    private boolean saved;
+  private Location location;
+  private final UUID uuid;
+  private final OfflinePlayer player;
+  private boolean saved;
 
-    public BlockLog(Block block, OfflinePlayer player)
-    {
-        this.location = block.getLocation();
-        this.player = player;
-        this.uuid = UUID.randomUUID();
-    }
-    public BlockLog(Location location, OfflinePlayer player, UUID uuid)
-    {
-        this.location = location;
-        this.player = player;
-        this.uuid = uuid;
-    }
-    public void setLocation(Location location) {
-        this.location = location;
-        this.saved = false;
-    }
+  public BlockLog(Block block, OfflinePlayer player) {
+    this.location = block.getLocation();
+    this.player = player;
+    this.uuid = UUID.randomUUID();
+  }
 
+  public BlockLog(Location location, OfflinePlayer player, UUID uuid) {
+    this.location = location;
+    this.player = player;
+    this.uuid = uuid;
+  }
 
-    public boolean isCreative()
-    {
-        return this.player != null;
-    }
+  public void setLocation(Location location) {
+    this.location = location;
+    this.saved = false;
+  }
 
-    public boolean isSaved() {
-        return saved;
-    }
+  public boolean isCreative() {
+    return this.player != null;
+  }
 
-    public void setSaved(boolean saved) {
-        this.saved = saved;
-    }
+  public boolean isSaved() {
+    return saved;
+  }
 
-    public UUID getUuid() {
-        return uuid;
-    }
+  public void setSaved(boolean saved) {
+    this.saved = saved;
+  }
 
-    public Location getLocation() {
-        return location;
-    }
+  public UUID getUuid() {
+    return uuid;
+  }
 
-    public OfflinePlayer getPlayer() {
-        return player;
-    }
+  public Location getLocation() {
+    return location;
+  }
+
+  public OfflinePlayer getPlayer() {
+    return player;
+  }
 }
