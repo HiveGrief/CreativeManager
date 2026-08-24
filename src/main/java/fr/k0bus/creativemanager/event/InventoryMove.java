@@ -5,6 +5,7 @@ import fr.k0bus.creativemanager.CreativeManager;
 import fr.k0bus.creativemanager.services.ItemBlacklist;
 import fr.k0bus.creativemanager.services.ItemLore;
 import fr.k0bus.creativemanager.settings.Protections;
+import fr.k0bus.creativemanager.utils.ArmorUtils;
 import fr.k0bus.creativemanager.utils.CMUtils;
 import fr.k0bus.creativemanager.utils.SearchUtils;
 import java.util.*;
@@ -116,6 +117,34 @@ public class InventoryMove implements Listener {
       e.setResult(Event.Result.DENY);
       e.setCursor(new ItemStack(Material.AIR));
       e.setCurrentItem(e.getCurrentItem());
+      e.setCancelled(true);
+    }
+  }
+
+  /**
+   * Shift-click and number-key (hotbar swap) transactions in Creative mode go through the
+   * regular {@link InventoryClickEvent} instead of {@link InventoryCreativeEvent}, so the armor
+   * slot needs to be protected here too, otherwise a player can equip/unequip armor with those :
+   * clicking directly on the armor slot (removing it, or swapping a hotbar item into it via a
+   * number key) is caught by the slot type, while shift-clicking an armor piece sitting anywhere
+   * else in the inventory (to auto-equip it) is caught by checking the clicked item itself.
+   *
+   * @param e the event.
+   */
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void checkArmorClickEvent(final InventoryClickEvent e) {
+    if (!(e.getWhoClicked() instanceof Player p)) return;
+    if (!p.getGameMode().equals(GameMode.CREATIVE)) return;
+    if (!CreativeManager.getSettings().getProtection(Protections.ARMOR)) return;
+    if (p.hasPermission("creativemanager.bypass.armor")) return;
+
+    boolean targetsArmorSlot = e.getSlotType().equals(InventoryType.SlotType.ARMOR);
+    ItemStack clicked = e.getCurrentItem();
+    boolean shiftClickArmor =
+        e.getClick().isShiftClick()
+            && clicked != null
+            && ArmorUtils.isArmorMaterial(clicked.getType());
+    if (targetsArmorSlot || shiftClickArmor) {
       e.setCancelled(true);
     }
   }

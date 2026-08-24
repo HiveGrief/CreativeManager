@@ -9,6 +9,7 @@ import fr.k0bus.creativemanager.event.plugin.ItemsAdderListener;
 import fr.k0bus.creativemanager.event.plugin.SlimeFun;
 import fr.k0bus.creativemanager.log.DataManager;
 import fr.k0bus.creativemanager.settings.Settings;
+import fr.k0bus.creativemanager.task.ArmorProtectionTask;
 import fr.k0bus.creativemanager.task.SaveTask;
 import fr.k0bus.k0buscore.K0busCore;
 import fr.k0bus.k0buscore.config.Lang;
@@ -39,6 +40,7 @@ public class CreativeManager extends K0busCore {
   private static Lang lang;
   private DataManager dataManager;
   private int saveTask;
+  private int armorTask;
   private static final HashMap<String, Set<Material>> tagMap = new HashMap<>();
   private static UpdateChecker updateChecker;
 
@@ -78,6 +80,7 @@ public class CreativeManager extends K0busCore {
     this.loadLog();
     this.loadTags();
     this.saveTask = SaveTask.run(this);
+    this.armorTask = ArmorProtectionTask.run(this);
     if (getSettings().getConfiguration().getBoolean("stop-inventory-save")) {
       getLog()
           .log(
@@ -269,6 +272,8 @@ public class CreativeManager extends K0busCore {
   public void onDisable() {
     if (Bukkit.getScheduler().isCurrentlyRunning(saveTask)
         || Bukkit.getScheduler().isQueued(saveTask)) Bukkit.getScheduler().cancelTask(saveTask);
+    if (Bukkit.getScheduler().isCurrentlyRunning(armorTask)
+        || Bukkit.getScheduler().isQueued(armorTask)) Bukkit.getScheduler().cancelTask(armorTask);
     if (dataManager != null) dataManager.save();
   }
 }
