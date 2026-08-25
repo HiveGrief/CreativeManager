@@ -91,6 +91,10 @@ public class InventoryOpen implements Listener {
     } catch (NoSuchFieldError ignored) {
     }
     try {
+      typeList.add(InventoryType.ENDER_CHEST);
+    } catch (NoSuchFieldError ignored) {
+    }
+    try {
       typeList.add(InventoryType.FURNACE);
     } catch (NoSuchFieldError ignored) {
     }

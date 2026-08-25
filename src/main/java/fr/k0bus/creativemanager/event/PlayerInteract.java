@@ -2,6 +2,7 @@ package fr.k0bus.creativemanager.event;
 
 import fr.k0bus.creativemanager.CreativeManager;
 import fr.k0bus.creativemanager.settings.Protections;
+import fr.k0bus.creativemanager.utils.ArmorUtils;
 import fr.k0bus.creativemanager.utils.CMUtils;
 import fr.k0bus.creativemanager.utils.SearchUtils;
 import fr.k0bus.k0buscore.utils.StringUtils;
@@ -11,6 +12,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -69,19 +71,42 @@ public class PlayerInteract implements Listener {
     if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
     if (block == null) return;
     if (p.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock()) return;
+    if (p.hasPermission("creativemanager.bypass.container")) return;
 
     try {
       if (block.getType().equals(Material.CAMPFIRE)
           || block.getType().equals(Material.SOUL_CAMPFIRE)) {
         if (!p.getInventory().getItemInMainHand().getType().name().contains("SHOVEL")) {
-          if (!p.hasPermission("creativemanager.bypass.container")) {
-            if (CreativeManager.getSettings().getConfiguration().getBoolean("send-player-messages"))
-              CMUtils.sendMessage(p, "permission.container");
-            e.setCancelled(true);
-          }
+          if (CreativeManager.getSettings().getConfiguration().getBoolean("send-player-messages"))
+            CMUtils.sendMessage(p, "permission.container");
+          e.setCancelled(true);
         }
       }
     } catch (NoSuchFieldError ignored) {
+    }
+
+    try {
+      if (block.getType().equals(Material.ENDER_CHEST)) {
+        if (CreativeManager.getSettings().getConfiguration().getBoolean("send-player-messages"))
+          CMUtils.sendMessage(p, "permission.container");
+        e.setCancelled(true);
+      }
+    } catch (NoSuchFieldError ignored) {
+    }
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void checkArmorEquip(PlayerInteractEvent e) {
+    Player p = e.getPlayer();
+    ItemStack itemStack = e.getItem();
+    if (!p.getGameMode().equals(GameMode.CREATIVE)) return;
+    if (itemStack == null) return;
+    if (!CreativeManager.getSettings().getProtection(Protections.ARMOR)) return;
+    if (p.hasPermission("creativemanager.bypass.armor")) return;
+    if (!e.getAction().equals(Action.RIGHT_CLICK_AIR)
+        && !e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+    if (ArmorUtils.isArmorMaterial(itemStack.getType())) {
+      e.setUseItemInHand(Event.Result.DENY);
     }
   }
 
