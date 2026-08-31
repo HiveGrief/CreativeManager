@@ -1,5 +1,6 @@
 package fr.k0bus.creativemanager;
 
+import fr.k0bus.creativemanager.command.ProtectedCommandMap;
 import fr.k0bus.creativemanager.commands.Commands;
 import fr.k0bus.creativemanager.commands.cm.CreativeManagerCommandTab;
 import fr.k0bus.creativemanager.commands.cm.CreativeManagerCommands;
@@ -24,6 +25,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Tag;
+import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
@@ -74,6 +76,7 @@ public class CreativeManager extends K0busCore {
     this.loadConfigManager();
     this.registerEvent(this.getServer().getPluginManager());
     getLog().log("&2Listener registered");
+    this.protectCommandMap();
     this.registerCommand();
     getLog().log("&2Commands registered");
     this.registerPermissions();
@@ -173,6 +176,48 @@ public class CreativeManager extends K0busCore {
       mainCommand.setTabCompleter(
           new CreativeManagerCommandTab((Commands) mainCommand.getExecutor()));
     }
+  }
+
+  private void protectCommandMap() {
+    hookCommandMap(getServer(), getServer().getClass());
+    hookCommandMap(getServer().getPluginManager(), getServer().getPluginManager().getClass());
+  }
+
+  private void hookCommandMap(Object holder, Class<?> holderClass) {
+    try {
+      Field field = findCommandMapField(holderClass);
+      if (field == null) {
+        getLog()
+            .log(
+                "&cCould not find a CommandMap on "
+                    + holderClass.getName()
+                    + ", command blacklist won't cover aliases plugins re-dispatching "
+                    + "commands internally.");
+        return;
+      }
+      field.setAccessible(true);
+      Object current = field.get(holder);
+      if (current instanceof ProtectedCommandMap) return;
+      field.set(holder, new ProtectedCommandMap((CommandMap) current));
+    } catch (ReflectiveOperationException | ClassCastException e) {
+      getLog()
+          .log(
+              "&cUnable to hook into "
+                  + holderClass.getName()
+                  + "'s CommandMap, command blacklist won't cover aliases plugins re-dispatching "
+                  + "commands internally.");
+    }
+  }
+
+  private Field findCommandMapField(Class<?> clazz) {
+    for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+      for (Field field : c.getDeclaredFields()) {
+        if (CommandMap.class.isAssignableFrom(field.getType())) {
+          return field;
+        }
+      }
+    }
+    return null;
   }
 
   private void registerPermissions() {
