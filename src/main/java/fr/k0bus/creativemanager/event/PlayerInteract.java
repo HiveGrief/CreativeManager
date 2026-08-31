@@ -39,7 +39,8 @@ public class PlayerInteract implements Listener {
     if (itemStack == null) return;
 
     if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK))
-      if (e.getClickedBlock() != null) if (itemStack.getType().isBlock()) return;
+      if (e.getClickedBlock() != null)
+        if (p.isSneaking() && itemStack.getType().isBlock()) return;
 
     String itemName = itemStack.getType().name().toLowerCase();
     if (p.hasPermission("creativemanager.bypass.blacklist.use")) return;
@@ -89,6 +90,24 @@ public class PlayerInteract implements Listener {
 
     try {
       if (block.getType().equals(Material.ENDER_CHEST)) {
+        if (CreativeManager.getSettings().getConfiguration().getBoolean("send-player-messages"))
+          CMUtils.sendMessage(p, "permission.container");
+        e.setCancelled(true);
+      }
+    } catch (NoSuchFieldError ignored) {
+    }
+
+    try {
+      if (block.getType().equals(Material.DECORATED_POT)) {
+        if (CreativeManager.getSettings().getConfiguration().getBoolean("send-player-messages"))
+          CMUtils.sendMessage(p, "permission.container");
+        e.setCancelled(true);
+      }
+    } catch (NoSuchFieldError ignored) {
+    }
+
+    try {
+      if (block.getType().equals(Material.CHISELED_BOOKSHELF)) {
         if (CreativeManager.getSettings().getConfiguration().getBoolean("send-player-messages"))
           CMUtils.sendMessage(p, "permission.container");
         e.setCancelled(true);

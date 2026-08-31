@@ -16,7 +16,7 @@ protections:
   pickup: true #Bypass : creativemanager.bypass.pickup
   build: false #Bypass : creativemanager.bypass.build
   entity: true #Bypass : creativemanager.bypass.entity
-  pvp: false #Bypass : creativemanager.bypass.hit.player
+  pvp: false #Bypass : creativemanager.bypass.pvp
   pve: false #Bypass : creativemanager.bypass.hit.monster
   lore: true # Bypass : creativemanager.bypass.lore
   loot: true
