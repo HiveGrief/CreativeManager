@@ -70,7 +70,9 @@ public class PlayerInteract implements Listener {
     if (!CreativeManager.getSettings().getProtection(Protections.CONTAINER)) return;
     if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
     if (block == null) return;
-    if (p.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock()) return;
+    ItemStack handItem = p.getInventory().getItemInMainHand();
+    if (p.isSneaking() && handItem.getType() != Material.AIR && handItem.getType().isBlock())
+      return;
     if (p.hasPermission("creativemanager.bypass.container")) return;
 
     try {

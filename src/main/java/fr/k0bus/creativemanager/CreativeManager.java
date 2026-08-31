@@ -198,8 +198,19 @@ public class CreativeManager extends K0busCore {
       field.setAccessible(true);
       Object current = field.get(holder);
       if (current instanceof ProtectedCommandMap) return;
+      if (!field.getType().isAssignableFrom(ProtectedCommandMap.class)) {
+        getLog()
+            .log(
+                "&cCommandMap on "
+                    + holderClass.getName()
+                    + " is declared as "
+                    + field.getType().getName()
+                    + ", not the CommandMap interface, command blacklist won't cover aliases "
+                    + "plugins re-dispatching commands internally through it.");
+        return;
+      }
       field.set(holder, new ProtectedCommandMap((CommandMap) current));
-    } catch (ReflectiveOperationException | ClassCastException e) {
+    } catch (ReflectiveOperationException | ClassCastException | IllegalArgumentException e) {
       getLog()
           .log(
               "&cUnable to hook into "
