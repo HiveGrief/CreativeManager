@@ -69,12 +69,23 @@ public class PlayerInteract implements Listener {
     Block block = e.getClickedBlock();
     if (!p.getGameMode().equals(GameMode.CREATIVE)) return;
     if (!CreativeManager.getSettings().getProtection(Protections.CONTAINER)) return;
+    if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+        && !e.getAction().equals(Action.RIGHT_CLICK_AIR)) return;
+    if (p.hasPermission("creativemanager.bypass.container")) return;
+
+    if (isBundle(e.getItem())) {
+      if (CreativeManager.getSettings().getConfiguration().getBoolean("send-player-messages"))
+        CMUtils.sendMessage(p, "permission.container");
+      e.setUseItemInHand(Event.Result.DENY);
+      e.setCancelled(true);
+      return;
+    }
+
     if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
     if (block == null) return;
     ItemStack handItem = p.getInventory().getItemInMainHand();
     if (p.isSneaking() && handItem.getType() != Material.AIR && handItem.getType().isBlock())
       return;
-    if (p.hasPermission("creativemanager.bypass.container")) return;
 
     try {
       if (block.getType().equals(Material.CAMPFIRE)
@@ -114,6 +125,12 @@ public class PlayerInteract implements Listener {
       }
     } catch (NoSuchFieldError ignored) {
     }
+  }
+
+  private boolean isBundle(ItemStack itemStack) {
+    if (itemStack == null) return false;
+    String name = itemStack.getType().name();
+    return name.equals("BUNDLE") || name.endsWith("_BUNDLE");
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
@@ -157,13 +174,16 @@ public class PlayerInteract implements Listener {
     }
   }
 
-  @EventHandler(priority = EventPriority.LOWEST)
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void checkSpawnEgg(PlayerInteractEvent e) {
     Player p = e.getPlayer();
     ItemStack itemStack = e.getItem();
     if (!p.getGameMode().equals(GameMode.CREATIVE)) return;
     if (itemStack == null) return;
-    if (p.hasPermission("creativemanager.bypass.spawn_egg")) return;
+    // "creativemanager.bypass.spawner" is the node actually registered in plugin.yml /
+    // documented in config.yml - "spawn_egg" was never registered, so granting it through a
+    // permission plugin never bypassed this check.
+    if (p.hasPermission("creativemanager.bypass.spawner")) return;
     if (!CreativeManager.getSettings().getProtection(Protections.SPAWN)) return;
     try {
       Class.forName("org.bukkit.inventory.meta.SpawnEggMeta");
